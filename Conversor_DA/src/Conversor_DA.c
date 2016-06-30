@@ -113,7 +113,7 @@ int main(void)
 	initLeds();
 	initRTItimer();
 	paso= periodo/max;
-	configIntervalms(paso);
+	configInterval_ms(paso);
 	initda();
 
 

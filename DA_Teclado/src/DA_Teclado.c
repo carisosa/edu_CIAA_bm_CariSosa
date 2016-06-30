@@ -81,9 +81,10 @@
 
 uint32_t cont=0;
 uint32_t datoDAC;
-uint8_t Amplitud=128;
-uint8_t Periodo=100;
-uint8_t paso;
+uint32_t Amplitud=128;
+uint32_t Periodo=100;
+uint32_t paso;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -116,32 +117,34 @@ int main(void)
 	initLeds();
 	initda();
 	initGPIOswitches();
+	paso=(Periodo*1000)/Amplitud; //da en [us]
 	initRTItimer();
-	paso=(Periodo*1000)/Amplitud;
-	configInterval_ms(paso);
+	configInterval_us(paso); // <- chequear
 /*
  * TEC1-> Aumenta amplitud
  * TEC2-> Disminuye amplitud
- * TEC3-> Aumenta periodo
- * TEC4-> Disminuye periodo*/
+ */
 
 
   while(1){
-	  uint8_t TeclaPresionada = scanKeyboard();
+	/* uint8_t TeclaPresionada = scanKeyboard();
 
-	  if(TeclaPresionada&(1<<0)){
+	 if(TeclaPresionada&(1<<0)){
+		  prendeLed(GREEN);
 		  if(Amplitud<1024){
 			  Amplitud+=128;
 		  }
-		  else Amplitud=1024;
+		  else{
 	  }
 
 	  if(TeclaPresionada&(1<<1)){
+		  prendeLed(YELLOW);
 		  if(Amplitud>128){
 			  Amplitud = Amplitud-128;
 		  }
-		  else Amplitud=128;
+
 	  }
+	 }*/
 
   }
 

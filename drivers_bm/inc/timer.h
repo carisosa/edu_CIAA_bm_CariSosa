@@ -71,7 +71,7 @@
 
 /*==================[external functions declaration]=========================*/
 void initRTItimer(void);
-void configIntervalms(uint32_t interval);
+void configInterval_ms(uint32_t interval);
 void clearFlag(void);
 void configInterval_us(uint32_t interval);
 
