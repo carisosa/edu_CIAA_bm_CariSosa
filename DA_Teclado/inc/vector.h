@@ -1,5 +1,5 @@
-/* Copyright 2016, Cari Sosa
- *  * All rights reserved.
+/* Copyright 2016, XXXXXXXXXX
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -31,24 +31,25 @@
  *
  */
 
-/** \brief Blinking Bare Metal example source file
+#ifndef VECTOR_H
+#define VECTOR_H
+/** \brief Bare Metal example header file
  **
- ** This is a little example of the CIAA Firmware.
+ ** This is a mini example of the CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Baremetal Bare Metal example source file
+/** \addtogroup Baremetal Bare Metal example header file
  ** @{ */
 
 /*
- * CS
+ * Initials     Name
  * ---------------------------
- * Cari Sosa ACTIVIDAD 9
+ *
  */
 
 /*
@@ -58,73 +59,24 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "Conversor_DA.h"       /* <= own header */
-#include "timer.h"
 #include "stdint.h"
-#include "chip.h"
-#include "vector.h"
-#include "led.h"
-#include "da.h"
 
+/*==================[macros]=================================================*/
+#define lpc4337            1
+#define mk60fx512vlq15     2
 
+/*==================[typedef]================================================*/
 
+/*==================[external data declaration]==============================*/
 
+/*==================[external functions declaration]=========================*/
+void ISR_RTITimer(void);
 
-/*==================[macros and definitions]=================================*/
-#define periodo 1024
-#define max 1024
-/*==================[internal data declaration]==============================*/
-
-/*==================[internal functions declaration]=========================*/
-
-/*==================[internal data definition]===============================*/
-uint32_t paso;
-uint32_t cont=0;
-uint32_t datoDAC;
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-/** \brief Main function
- *
- * This is the main entry point of the software.
- *
- * \returns 0
- *
- * \remarks This function never returns. Return value is only to avoid compiler
- *          warnings or errors.
- */
-
-void ISR_RTITimer(){
-	clearFlag();
-	toggleLed(RED);
-	cont++;
-	if(cont==max){
-		cont=0;
-	}
-	cargar_valor(cont);
-
-
-}
-
-int main(void)
-{
-	initLeds();
-	initRTItimer();
-	paso= periodo/max;
-	configIntervalms(paso);
-	initda();
-
-
-  while(1){
-  }
-
-			return 0;
-}
 
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef MI_NUEVO_PROYECTO_H */
+

@@ -46,9 +46,9 @@
  ** @{ */
 
 /*
- * CS
+ * CS     Cari Sosa
  * ---------------------------
- * Cari Sosa ACTIVIDAD 9
+ * ACTIVIDAD 10
  */
 
 /*
@@ -58,27 +58,28 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "Conversor_DA.h"       /* <= own header */
+#include "DA_Teclado.h"       /* <= own header */
 #include "timer.h"
 #include "stdint.h"
 #include "chip.h"
 #include "vector.h"
 #include "led.h"
 #include "da.h"
+#include "Teclas.h"
 
 
 
 
 
 /*==================[macros and definitions]=================================*/
-#define periodo 1024
-#define max 1024
+#define Periodo 1024
+#define Amplitud 1024
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-uint32_t paso;
+
 uint32_t cont=0;
 uint32_t datoDAC;
 /*==================[external data definition]===============================*/
@@ -100,7 +101,7 @@ void ISR_RTITimer(){
 	clearFlag();
 	toggleLed(RED);
 	cont++;
-	if(cont==max){
+	if(cont==Amplitud){
 		cont=0;
 	}
 	cargar_valor(cont);
@@ -111,13 +112,35 @@ void ISR_RTITimer(){
 int main(void)
 {
 	initLeds();
-	initRTItimer();
-	paso= periodo/max;
-	configIntervalms(paso);
 	initda();
+	initGPIOswitches();
+	initRTItimer();
+	paso=(Periodo*1000)/Amplitud;
+	configIntervalms(paso);
+/*
+ * TEC1-> Aumenta amplitud
+ * TEC2-> Disminuye amplitud
+ * TEC3-> Aumenta periodo
+ * TEC4-> Disminuye periodo*/
 
 
   while(1){
+	  uint8_t TeclaPresionada = scanKeyboard();
+
+	  if(TeclaPresionada&(1<<0)){
+		  if(Amplitud<1024){
+			  Amplitud+=128;
+		  }
+		  else Amplitud=1024;
+	  }
+
+	  if(TeclaPresionada&(1<<1)){
+		  if(Amplitud>128){
+			  Amplitud-=128;
+		  }
+		  else Amplitud=128;
+	  }
+
   }
 
 			return 0;

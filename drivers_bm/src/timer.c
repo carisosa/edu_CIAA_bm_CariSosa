@@ -92,9 +92,28 @@ void initRTItimer(void){
 };
 
 /*Configuración del intervalo de [ms]*/
-void configIntervalms(uint32_t interval){
+void configInterval_ms(uint32_t interval){
 
 	Chip_RIT_SetTimerInterval(LPC_RITIMER,interval);
+};
+
+void configInterval_us(uint32_t interval){
+	void Chip_RIT_SetTimerInterval(LPC_RITIMER_T *pRITimer, uint32_t time_interval)
+	{
+		uint32_t cmp_value;
+
+		/* Determine aapproximate compare value based on clock rate and passed interval */
+		cmp_value = (Chip_Clock_GetRate(CLK_MX_RITIMER) / 1000000) * time_interval;
+
+		/* Set timer compare value */
+		Chip_RIT_SetCOMPVAL(pRITimer, cmp_value);
+
+		/* Set timer enable clear bit to clear timer to 0 whenever
+		   counter value equals the contents of RICOMPVAL */
+		Chip_RIT_EnableCTRL(pRITimer, RIT_CTRL_ENCLR);
+	}
+
+
 };
 
 void clearFlag(void){
