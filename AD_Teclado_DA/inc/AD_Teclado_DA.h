@@ -1,5 +1,5 @@
-/* Copyright 2016, Cari Sosa
- *  * All rights reserved.
+/* Copyright 2016,
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -31,22 +31,23 @@
  *
  */
 
-/** \brief Blinking Bare Metal example source file
+#ifndef AD_Teclado_DA_H
+#define AD_Teclado_DA_H
+/** \brief Bare Metal example header file
  **
- ** This is a little example of the CIAA Firmware.
+ ** This is a mini example of the CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Baremetal Bare Metal example source file
+/** \addtogroup Baremetal Bare Metal example header file
  ** @{ */
 
 /*
- * CS     Cari Sosa
+ * Initials     Name
  * ---------------------------
  *
  */
@@ -58,65 +59,53 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "Conversor_AD.h"       /* <= own header */
 #include "stdint.h"
-#include "chip.h"
-#include "led.h"
-#include "ad.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
+#define lpc4337            1
+#define mk60fx512vlq15     2
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external data declaration]==============================*/
+#if (CPU == mk60fx512vlq15)
+/* Reset_Handler is defined in startup_MK60F15.S_CPP */
+void Reset_Handler( void );
 
-/*==================[internal data definition]===============================*/
-uint8_t canal=1;
-uint32_t num=0;
-uint16_t datoAD;
+extern uint32_t __StackTop;
+#elif (CPU == lpc4337)
+/** \brief Reset ISR
+ **
+ ** ResetISR is defined in cr_startup_lpc43xx.c
+ **
+ ** \remark the definition is in
+ **         externals/drivers/cortexM4/lpc43xx/src/cr_startup_lpc43xx.c
+ **/
+extern void ResetISR(void);
 
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-/** \brief Main function
- *
- * This is the main entry point of the software.
- *
- * \returns 0
- *
- * \remarks This function never returns. Return value is only to avoid compiler
- *          warnings or errors.
- */
+/** \brief Stack Top address
+ **
+ ** External declaration for the pointer to the stack top from the Linker Script
+ **
+ ** \remark only a declaration is needed, there is no definition, the address
+ **         is set in the linker script:
+ **         externals/base/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld.
+ **/
+extern void _vStackTop(void);
 
 
 
-/*ACTIVIDAD 11*/
+void RIT_IRQHandler(void);
 
-int main(void)
-{
-	initLeds();
-	initad(canal,num);
-	select_mode();
 
-  while(1){
-	  toggleLed(RED);
-	  	leer_dato(canal,&datoAD);
-	  	toggleLed(RED);
-	  	if(datoAD>800){
-	  		prendeLed(YELLOW);
-	  	}
-	  	if(datoAD<50){
-	  			prendeLed(GREEN);
-	  		}
-  }
+#else
+#endif
 
-			return 0;
-}
-
+/*==================[external functions declaration]=========================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef BAREMETAL_BLINKING_H */
+

@@ -70,7 +70,7 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-//void ISR_RTITimer(void);
+void ISR_RTITimer(void);
 
 
 

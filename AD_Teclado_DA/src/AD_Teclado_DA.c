@@ -46,9 +46,9 @@
  ** @{ */
 
 /*
- * CS     Cari Sosa
+ * CS
  * ---------------------------
- *
+ * Cari Sosa EXAMEN
  */
 
 /*
@@ -58,14 +58,20 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "Conversor_AD.h"       /* <= own header */
+#include "AD_Teclado_DA.h"       /* <= own header */
 #include "stdint.h"
 #include "chip.h"
+#include "da.h"
+#include "timer.h"
+#include "vector.h"
+#include "Teclas.h"
 #include "led.h"
-#include "ad.h"
+#include "da.h"
+#include "uart2.h"
 
 /*==================[macros and definitions]=================================*/
-
+#define ganancia_p 2
+#define ganancia_n 0.5
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -73,7 +79,27 @@
 /*==================[internal data definition]===============================*/
 uint8_t canal=1;
 uint32_t num=0;
+uint32_t Tmuestreo=100;
 uint16_t datoAD;
+uint32_t datoDA;
+uint32_t datoDA_min=0;
+uint32_t datoDA_max=1024;
+
+uint32_t amplitud_max=1024;
+uint32_t amplitud_min=0;
+uint32_t amplitud;
+
+uint32_t br=115200;
+uint8_t letra;
+uint8_t cadena1[] = "AUMENTO DE GANANCIA";
+uint8_t NB1=19;
+uint8_t cadena2[] = "DISMINUYO GANANCIA";
+uint8_t NB2=18;
+uint8_t cadena3[] = "MUTE";
+uint8_t NB3=4;
+uint8_t cadena4[] = "SAT";
+uint8_t NB4=4;
+
 
 /*==================[external data definition]===============================*/
 
@@ -90,29 +116,83 @@ uint16_t datoAD;
  *          warnings or errors.
  */
 
+/*Para una frecuencia de muestreo de 10[HZ] es necesario que el timer interrumpa cada 100[ms] y realice la conversión AD*/
+/*Adquisición de señal analogica con el ADC0 canal 1*/
+void ISR_RTITimer(){
+	clearFlag();
+	prendeLed(GREEN);
+	toggleLed(RED); //cambia el estado del LED1 cada vez que toma una muestra
 
+	select_mode();
+	leer_dato(canal,&datoAD);
+	datoDA=datoAD; //<- chequear que sea realmente el dato y no la dirección de memoria!!
 
-/*ACTIVIDAD 11*/
+	cargar_valor(datoDA);
+	amplitud=datoDA;
+}
 
 int main(void)
 {
+	initGPIOswitches();
 	initLeds();
 	initad(canal,num);
-	select_mode();
 
-  while(1){
-	  toggleLed(RED);
-	  	leer_dato(canal,&datoAD);
-	  	toggleLed(RED);
-	  	if(datoAD>800){
-	  		prendeLed(YELLOW);
-	  	}
-	  	if(datoAD<50){
-	  			prendeLed(GREEN);
-	  		}
-  }
+	initda();
+	inituart2(br);
 
-			return 0;
+	initRTItimer();
+	configInterval_ms(Tmuestreo); //el timer interrumpe cada 100[ms]
+
+
+	while(1){
+
+
+		uint8_t TeclaPresionada = scanKeyboard();
+/*escanea continuamente el teclado y solo si alguna tecla es presionada avanza*/
+
+		if(TeclaPresionada!=0){
+/*podría deshabilitar el timer mientras analiza las condiciones
+ * pero la frecuencia de muestreo es baja por lo que asumo que no voy a tener problemas*/
+
+/*Si la tecla presionada es la Tecla 1 debo aumentar la ganancia e indicar la acción por consola*/
+/*LEER!!! INTERPRETE QUE SE DEVIA VARIAR LA AMPLITUD DEL DATO!
+ * ES DECIR QUE SE BEDE MANTENER LA TECLA PRESIONADA PARA VER LA MODIFICACIÓN EN LA SEÑAL*/
+		if(TeclaPresionada&(1<<0)){
+			amplitud=(ganancia_p*amplitud);
+			cargar_valor(amplitud);
+			UARTenviar(cadena1,NB1);
+		}
+		else{
+/*Si la tecla presionada es la Tecla 2 debo disminuir la ganancia e indicar la acción por consola*/
+			if(TeclaPresionada&(1<<1)){
+				amplitud=(ganancia_n*amplitud);
+				cargar_valor(amplitud);
+				UARTenviar(cadena2,NB2);
+			}
+			else {
+/*Si la tecla presionada es la Tecla 3 debo llevar la señal de salida a cero e indicar la acción por consola*/
+				if(TeclaPresionada&(1<<2)){
+					cargar_valor(datoDA_min);
+					UARTenviar(cadena3,NB3);
+				}
+
+				else {
+/*Si la tecla presionada es la Tecla 4 debo llevar la señal de salida al estado saturado e indicar la acción por consola*/
+					if(TeclaPresionada&(1<<3)){
+						cargar_valor(datoDA_max);
+						UARTenviar(cadena4,NB4);
+					}
+
+				}
+		   }
+		 }
+
+		}
+	}
+
+
+
+	return 0;
 }
 
 
